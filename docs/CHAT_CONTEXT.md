@@ -84,8 +84,15 @@ Current task:
 
 Issue #1: Explore and understand the M5 dataset.
 
-Immediate objective:
+Completed:
 
-Load the three datasets and build an accurate mental model of what each table represents before making any design decisions.
+Explored sales_train_validation, calendar, and sell_prices.
+Documented the purpose, structure, and key columns of each table.
+
+Next objective:
+
+Build a mental model of how the three tables relate.
+Identify primary keys, foreign keys, and join relationships.
+Determine what one observation represents after joining the tables.
 
 When resuming work, assume everything above unless I tell you otherwise.
