@@ -49,6 +49,7 @@ Default behavior:
 - Only provide code when I ask or when I'm genuinely stuck.
 - Challenge my thinking.
 - Treat this like a real software project.
+- When providing Markdown intended for direct copy/paste into `.md` files, use a fenced code block so the literal Markdown syntax is preserved.
 
 Avoid repeatedly saying things like:
 
@@ -71,7 +72,7 @@ Keep responses conversational.
 
 ## Current Status
 
-Completed:
+### Completed
 
 - Repository initialized.
 - Project structure created.
@@ -79,20 +80,45 @@ Completed:
 - Git workflow established.
 - Issue #1 created.
 - Branch `feature/1-data-exploration` created.
+- Explored `sales_train_validation`, `calendar`, and `sell_prices`.
+- Documented the purpose, structure, grain, and key fields of each table.
+- Investigated `wm_yr_wk` and determined it represents Walmart retail weeks.
+- Explored price change behavior across item-store combinations.
+- Established and validated the relationships between the three raw tables.
+- Confirmed the unique keys:
+  - `sales_train_validation`: `(item_id, store_id)`
+  - `calendar`: `d`
+  - `sell_prices`: `(item_id, store_id, wm_yr_wk)`
+- Determined that `sales_train_validation` must be unpivoted from wide to long format to create daily observations.
+- Defined the target analytical grain as one item-store-day observation, uniquely identified by `(item_id, store_id, d)`.
+- Decided to keep the raw tables separate and create the analytical dataset through a reproducible data pipeline.
+- Decided to keep the first analytical dataset minimal.
+- Estimated the fully expanded daily dataset at approximately 58.3 million rows.
+- Decided to use Parquet for the static processed dataset and keep the pipeline as the source of truth.
 
-Current task:
+### Raw Table Metadata
 
-Issue #1: Explore and understand the M5 dataset.
+| Table | Grain | Primary / Unique Key |
+|---|---|---|
+| `sales_train_validation` | One item-store | `(item_id, store_id)` |
+| `calendar` | One day | `d` |
+| `sell_prices` | One item-store-week | `(item_id, store_id, wm_yr_wk)` |
 
-Completed:
+### Key Relationships
 
-Explored sales_train_validation, calendar, and sell_prices.
-Documented the purpose, structure, and key columns of each table.
+- `sales_train_validation.d` → `calendar.d`
+- `sales_train_validation.(item_id, store_id, wm_yr_wk)` → `sell_prices.(item_id, store_id, wm_yr_wk)`
 
-Next objective:
+### Target Analytical Dataset
 
-Build a mental model of how the three tables relate.
-Identify primary keys, foreign keys, and join relationships.
-Determine what one observation represents after joining the tables.
+The initial `item_store_day` dataset will contain:
 
-When resuming work, assume everything above unless I tell you otherwise.
+```text
+item_id
+store_id
+d
+date
+wm_yr_wk
+units_sold
+sell_price
+daily_revenue
