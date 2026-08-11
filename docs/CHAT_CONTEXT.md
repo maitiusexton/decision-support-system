@@ -61,6 +61,25 @@ Keep responses conversational.
 
 ---
 
+## Working Style
+
+- Act as a senior data scientist and mentor, not as a code generator.
+- Keep me focused on the current project objective and session step.
+- If I start going down tangents involving unnecessary utility functions, abstractions, refactoring, extra validation, optimization, or other side work, call it out and steer me back to the current task.
+- Prefer teaching me how to reason through a problem rather than giving me the answer immediately.
+- When I am working through a coding task, ask me for my approach or code before providing the exact solution when practical.
+- Let me struggle a little and make mistakes as part of the learning process.
+- When I ask for code, give me enough to move forward without unnecessarily expanding the scope of the task.
+- Be stricter about keeping the project moving when I start over-validating or polishing things that are not necessary for the current objective.
+- Distinguish between work that is necessary for the current issue and work that would merely be nice to have later.
+- If something is a legitimate future improvement but not relevant to the current step, explicitly defer it rather than pursuing it.
+- Treat the project as a real software/data science project and encourage professional Git and repository workflow.
+- Keep explanations conversational and direct.
+- Do not use em dashes.
+- When providing Markdown intended for direct copy/paste into `.md` files, use a fenced code block so the literal Markdown syntax is preserved.
+
+---
+
 ## Repository Workflow
 
 - One GitHub Issue per feature.
@@ -95,14 +114,20 @@ Keep responses conversational.
 - Decided to keep the first analytical dataset minimal.
 - Estimated the fully expanded daily dataset at approximately 58.3 million rows.
 - Decided to use Parquet for the static processed dataset and keep the pipeline as the source of truth.
+- Built the `item_store_day` data pipeline using Pandas `melt()` and joins to `calendar` and `sell_prices`.
+- Validated the resulting dataset, including primary key uniqueness, expected columns, row count, missing prices, and `daily_revenue` calculations.
+- Converted `d` to integer and confirmed appropriate dtypes for the analytical dataset.
+- Reordered columns with primary key fields first.
+- Persisted the completed dataset to `data/processed/item_store_day.parquet`.
+- Verified the persisted Parquet file with PyArrow and confirmed the expected schema.
 
 ### Raw Table Metadata
 
-| Table | Grain | Primary / Unique Key |
-|---|---|---|
-| `sales_train_validation` | One item-store | `(item_id, store_id)` |
-| `calendar` | One day | `d` |
-| `sell_prices` | One item-store-week | `(item_id, store_id, wm_yr_wk)` |
+| Table                    | Grain               | Primary / Unique Key            |
+| ------------------------ | ------------------- | ------------------------------- |
+| `sales_train_validation` | One item-store      | `(item_id, store_id)`           |
+| `calendar`               | One day             | `d`                             |
+| `sell_prices`            | One item-store-week | `(item_id, store_id, wm_yr_wk)` |
 
 ### Key Relationships
 
@@ -113,12 +138,18 @@ Keep responses conversational.
 
 The initial `item_store_day` dataset will contain:
 
-```text
-item_id
-store_id
-d
-date
-wm_yr_wk
-units_sold
-sell_price
-daily_revenue
+    item_id
+    store_id
+    d
+    date
+    wm_yr_wk
+    units_sold
+    sell_price
+    daily_revenue
+
+## Current Technical Notes
+
+- The project currently uses Pandas 2.3.3 and PyArrow 25.0.1.
+- Pandas `to_parquet()` and `read_parquet()` encounter an Arrow extension-type compatibility issue in the current environment.
+- PyArrow can directly write and read the Parquet file successfully.
+- A separate issue will address setting up a reproducible Python virtual environment and resolving the dependency/environment problem.
