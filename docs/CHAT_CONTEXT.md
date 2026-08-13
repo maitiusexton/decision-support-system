@@ -86,30 +86,28 @@ The detailed data model, relationships, findings, and pipeline history are maint
 > **Turn the working data pipeline into a reusable project structure.**
 
 This is an evolving goal representing roughly the next 3-5 sessions, not a rigid plan.
-
 Current checklist:
 - [x] Extract appropriate pipeline functionality from `02_data_pipeline.ipynb` into `src/`
 - [x] Establish basic tests for the data pipeline
-- [ ] Establish reusable data-loading functionality
+- [x] Establish reusable data-loading functionality
 - [ ] Define the initial structure for analytical/modeling code
 - [ ] Confirm the project is ready to begin forecasting
 
 The checklist should evolve as we learn more.
 
 ## 4. Current Next Session
-Establish the next piece of reusable data infrastructure needed after extracting the item-store-day pipeline.
+Define the initial structure for analytical/modeling code.
 
-The immediate question is:
-> **What data-loading functionality should become reusable project code, and what is the simplest useful boundary?**
+The technical foundation needed for the current pipeline is now in place:
+- Raw M5 data can be loaded through reusable project code.
+- The item-store-day transformation is reusable project code.
+- Basic automated testing is established.
+- The processed analytical dataset has been validated and persisted.
 
-Keep this session narrow.
-Do not attempt to design the entire data-access architecture.
-Do not create abstractions merely because they might be useful later.
-Work from the concrete needs of the current pipeline and extract only what has a clear reusable purpose.
+The next session should determine the simplest useful structure for analytical/modeling work before forecasting begins.
 
 ## 5. How I Want the Assistant to Behave
 Act as a **senior data scientist and mentor**.
-
 Default behavior:
 - Give me objectives rather than unsolicited code.
 - Ask guiding questions.
@@ -137,7 +135,6 @@ If I start:
 - solving a problem that is not relevant to the current session
 
 redirect me toward the current objective.
-
 Do not encourage side work simply because it could eventually be useful.
 
 Defer nonessential refactoring, abstraction, and infrastructure until there is a concrete reason for it.
@@ -163,7 +160,6 @@ keep the north-star question in mind:
 > **Given what we know today, what should we order?**
 
 The goal is not to build the most complicated model or the most sophisticated software architecture.
-
 The goal is to learn how to build a credible, reproducible, extensible decision-support system that translates uncertainty about future demand into better business decisions.
 
 ## 8. Do Not Use Artificial Restrictions
@@ -185,7 +181,6 @@ This project exists to help me:
 - Develop intuition before implementation.
 
 Longer-term, I want to work on teams with experienced data scientists who can mentor me.
-
 I value:
 - Clean engineering
 - Impactful business problems
@@ -244,7 +239,6 @@ Its most important contents are:
 
 It should not duplicate the entire project history.
 When detailed historical information is needed, `PROJECT_LOG.md` is the source.
-
 Do not aggressively shorten this document if doing so would remove something important that I explicitly asked the assistant to remember.
 
 ## 11. Git Workflow
@@ -261,7 +255,6 @@ At the start of each new coding session involving coding:
 3. Start in a fresh local VS Code coding environment/workspace.
 
 "Fresh local coding environment" does not mean GitHub Codespaces.
-
 Do not push feature work directly to `main`.
 
 I do not like pushing directly to `main`.
@@ -277,13 +270,13 @@ Before pushing a feature branch or creating its PR, confirm that both documentat
 
 The `PROJECT_LOG.md` update should record what substantively happened.
 The `CHAT_CONTEXT.md` update should record any durable context that a future chat needs to know.
-
 Do not consider a coding session fully wrapped up until both documentation files have been addressed.
 
 ## 13. Current Technical State
-
 The project currently includes:
+- `src/data/loader.py` containing the reusable `load_raw_m5_data()` raw M5 data loader
 - `src/data/pipeline.py` containing the reusable `build_item_store_day()` transformation
+- `tests/test_loader.py` containing automated tests for the raw data loader
 - `tests/test_pipeline.py` containing automated tests for the data pipeline
 
 Current dependencies:
@@ -293,8 +286,9 @@ Current dependencies:
 - `pytest==9.1.1` (development)
 
 `pyproject.toml` is the dependency source of truth.
-
 Basic automated testing is established with pytest. Detailed technical history belongs in `PROJECT_LOG.md`.
+
+Python formatting uses an 88-character line length with Black as the formatter.
 
 ## 14. Important Architectural Principles
 ### Decision-first
@@ -324,7 +318,6 @@ M5 is the starting point, not the limitation. The system should eventually be ad
 Keep responses conversational, practical, and direct.
 
 Do not use em dashes.
-
 When I ask for Markdown intended for direct copy/paste into a `.md` file, provide the entire Markdown as one copy/pasteable fenced code block.
 Avoid unnecessary blank lines in those files.
 Do not create nested fenced code blocks inside that outer block. If code-fence syntax is needed literally inside the document, use another representation or otherwise ensure the entire response remains one copy/pasteable block.
