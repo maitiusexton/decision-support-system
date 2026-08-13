@@ -88,24 +88,24 @@ The detailed data model, relationships, findings, and pipeline history are maint
 This is an evolving goal representing roughly the next 3-5 sessions, not a rigid plan.
 
 Current checklist:
-- [ ] Extract appropriate pipeline functionality from `02_data_pipeline.ipynb` into `src/`
+- [x] Extract appropriate pipeline functionality from `02_data_pipeline.ipynb` into `src/`
+- [x] Establish basic tests for the data pipeline
 - [ ] Establish reusable data-loading functionality
-- [ ] Establish basic tests for the data pipeline
 - [ ] Define the initial structure for analytical/modeling code
 - [ ] Confirm the project is ready to begin forecasting
 
 The checklist should evolve as we learn more.
 
 ## 4. Current Next Session
-Determine what code from `02_data_pipeline.ipynb` should be extracted into `src/`.
+Establish the next piece of reusable data infrastructure needed after extracting the item-store-day pipeline.
 
 The immediate question is:
-> **What is the first piece of our working notebook pipeline that should become reusable project code?**
+> **What data-loading functionality should become reusable project code, and what is the simplest useful boundary?**
 
 Keep this session narrow.
-Do not attempt to design the entire architecture.
+Do not attempt to design the entire data-access architecture.
 Do not create abstractions merely because they might be useful later.
-Work from the existing pipeline and extract only what has a clear reusable purpose.
+Work from the concrete needs of the current pipeline and extract only what has a clear reusable purpose.
 
 ## 5. How I Want the Assistant to Behave
 Act as a **senior data scientist and mentor**.
@@ -251,44 +251,50 @@ Do not aggressively shorten this document if doing so would remove something imp
 Use:
 - One GitHub Issue per feature
 - One feature branch per issue
+- One fresh local coding environment/workspace per coding session
 - One Pull Request per feature
 - Squash merge into `main`
 
-**Do not push feature work directly to `main`.**
+At the start of each new coding session involving coding:
+1. Create the GitHub Issue.
+2. Create a new feature branch tied to that issue.
+3. Start in a fresh local VS Code coding environment/workspace.
+
+"Fresh local coding environment" does not mean GitHub Codespaces.
+
+Do not push feature work directly to `main`.
 
 I do not like pushing directly to `main`.
 
 ## 12. PR Documentation Requirement
-For **every PR**, always remind me to update both:
+For every PR, always address both:
 - `docs/PROJECT_LOG.md`
 - `docs/CHAT_CONTEXT.md`
 
-These are standard PR closeout steps.
+These are mandatory PR closeout steps.
 
-Do not consider a PR fully wrapped up until both documentation files have been addressed.
+Before pushing a feature branch or creating its PR, confirm that both documentation files have been updated as appropriate.
 
 The `PROJECT_LOG.md` update should record what substantively happened.
 The `CHAT_CONTEXT.md` update should record any durable context that a future chat needs to know.
 
-## 13. Current Technical State
-The project currently has:
-- A working M5 data exploration foundation
-- A defined item-store-day analytical dataset
-- A working item-store-day data pipeline
-- A persisted Parquet dataset
-- A reproducible Python 3.11 environment
-- Dependencies managed through `pyproject.toml`
-- VS Code/Jupyter configured to use the project virtual environment
+Do not consider a coding session fully wrapped up until both documentation files have been addressed.
 
-Current dependencies include:
+## 13. Current Technical State
+
+The project currently includes:
+- `src/data/pipeline.py` containing the reusable `build_item_store_day()` transformation
+- `tests/test_pipeline.py` containing automated tests for the data pipeline
+
+Current dependencies:
 - `pandas==2.3.3`
 - `pyarrow==25.0.1`
-- `ipykernel==7.3.0` as a development dependency
+- `ipykernel==7.3.0` (development)
+- `pytest==9.1.1` (development)
 
-`requirements.txt` is intentionally blank.
 `pyproject.toml` is the dependency source of truth.
 
-The detailed technical history belongs in `PROJECT_LOG.md`.
+Basic automated testing is established with pytest. Detailed technical history belongs in `PROJECT_LOG.md`.
 
 ## 14. Important Architectural Principles
 ### Decision-first

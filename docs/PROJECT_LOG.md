@@ -110,11 +110,50 @@
 ### Medium-Term Goal
 Turn the working data pipeline into a reusable project structure.
 
-- [ ] Extract appropriate pipeline functionality from `02_data_pipeline.ipynb` into `src/`
+Current checklist:
+- [x] Extract appropriate pipeline functionality from `02_data_pipeline.ipynb` into `src/`
+- [x] Establish basic tests for the data pipeline
 - [ ] Establish reusable data-loading functionality
-- [ ] Establish basic tests for the data pipeline
 - [ ] Define the initial structure for analytical/modeling code
 - [ ] Confirm the project is ready to begin forecasting
 
 ### Next Session
 - Determine what code from `02_data_pipeline.ipynb` should be extracted into `src/`.
+
+## 2026-08-13
+
+### Completed
+- Worked under Issue #9 on branch `feature/9-extract-data-pipeline`.
+- Extracted the validated `item_store_day` transformation from `02_data_pipeline.ipynb` into reusable project code at `src/data/pipeline.py`.
+- Implemented `build_item_store_day()` to:
+  - Melt `sales_train_validation` from wide to long format.
+  - Join `calendar` on `d` to add `date` and `wm_yr_wk`.
+  - Convert `d` from the `d_X` string format to `int64`.
+  - Join `sell_prices` on `(item_id, store_id, wm_yr_wk)` to add `sell_price`.
+  - Calculate `daily_revenue` as `units_sold * sell_price`.
+  - Enforce the expected output dtypes and column order.
+- Added `many_to_one` merge validation for both the calendar and sell-price joins.
+- Added `pytest==9.1.1` as a development dependency and installed the project in editable mode.
+- Confirmed the project package can be imported through the installed `src` layout.
+- Added `tests/test_pipeline.py` with three tests:
+  - Happy-path validation of the complete pipeline.
+  - Rejection of duplicate `calendar.d` keys.
+  - Rejection of duplicate `(item_id, store_id, wm_yr_wk)` sell-price keys.
+- All three automated tests pass.
+- Created `03_pipeline_verification.ipynb` to verify the extracted pipeline against the existing validated `data/processed/item_store_day.parquet`.
+- Confirmed that the new pipeline output exactly matches the existing Parquet output in shape, column order, dtypes, and values.
+- Confirmed the generated analytical dataset contains 58,327,370 rows and the expected eight-column schema.
+- Left `02_data_pipeline.ipynb` unchanged.
+
+### Key Takeaways
+
+- The reusable pipeline now lives in `src/` rather than the exploratory notebook.
+- The pipeline remains a DataFrame-in/DataFrame-out transformation; raw file loading is intentionally kept separate.
+- The existing Parquet dataset can serve as a full-data regression reference when validating changes to the pipeline.
+- Basic automated testing is now established for the data pipeline.
+
+### Next Session
+
+- Establish reusable data-loading functionality for the raw M5 tables.
+- Determine whether any additional pipeline infrastructure is justified by concrete requirements.
+- Continue preparing the project for forecasting.
