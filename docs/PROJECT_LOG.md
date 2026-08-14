@@ -101,12 +101,12 @@
 ### Medium-Term Goal
 Turn the working data pipeline into a reusable project structure.
 
-Current checklist:
+Checklist:
 - [x] Extract appropriate pipeline functionality from `02_data_pipeline.ipynb` into `src/`
 - [x] Establish basic tests for the data pipeline
-- [ ] Establish reusable data-loading functionality
-- [ ] Define the initial structure for analytical/modeling code
-- [ ] Confirm the project is ready to begin forecasting
+- [x] Establish reusable data-loading functionality
+- [x] Define the initial structure for analytical/modeling code
+- [x] Confirm the project is ready to begin forecasting
 ### Next Session
 - Determine what code from `02_data_pipeline.ipynb` should be extracted into `src/`.
 
@@ -165,3 +165,51 @@ Current checklist:
 - Define the initial structure for analytical/modeling code.
 - Determine whether any additional pipeline infrastructure is justified by concrete requirements.
 - Continue preparing the project for forecasting.
+
+## 2026-08-14
+### Completed
+- Began development and evaluation of a one-step-ahead forecasting baseline.
+- Defined the evaluation period as the final 365 days of the available historical data.
+- Implemented a lag-1 baseline where each item-store's previous day's demand is used to predict the next day's demand.
+- Calculated overall MAE and RMSE and verified the calculations using scikit-learn.
+- Added `scikit-learn==1.9.0` and `matplotlib==3.11.1` as project dependencies.
+- Built an item-store-level evaluation summary containing:
+  - Mean daily demand
+  - Standard deviation of demand
+  - MAE
+  - RMSE
+- Analyzed the distributions of demand and forecast error across item-store combinations.
+- Defined relative MAE as item-store MAE divided by mean daily demand to compare forecast performance across different demand scales.
+- Found that relative forecast error generally decreases as mean daily demand increases.
+- Investigated 464 item-store combinations with relative MAE exactly equal to `2.0` and found that they are characterized by low, intermittent demand.
+- Determined why relative MAE reaches exactly `2.0` for these intermittent-demand series: an isolated sale causes the lag-1 baseline to miss the sale itself and then incorrectly predict that sale on the following zero-sales day.
+- Found a strong, approximately linear relationship between demand variability and baseline MAE.
+
+### Key Takeaways
+- Overall MAE alone does not adequately describe baseline performance because item-store demand levels vary substantially.
+- Item-store-level evaluation provides substantially more insight into forecast behavior than a single aggregate metric.
+- The lag-1 baseline performs particularly poorly relative to demand for low-volume and intermittent-demand series.
+- Higher-demand item-store combinations generally have lower relative forecast errors.
+- The median relative MAE is approximately `1.313`, meaning the median item-store's MAE is about 131% of its mean daily demand.
+- Baseline MAE is strongly associated with the underlying variability of an item-store's demand.
+- The intermittent-demand analysis identified a specific structural weakness of the lag-1 baseline rather than simply identifying poor metric values.
+
+### Medium-Term Goal
+Establish and understand a credible forecasting baseline before moving to more sophisticated forecasting approaches.
+
+Checklist:
+- [x] Define the initial one-step-ahead forecasting problem
+- [x] Implement a lag-1 forecasting baseline
+- [x] Establish a 365-day evaluation period
+- [x] Calculate and validate baseline MAE and RMSE
+- [x] Begin item-store-level baseline diagnostics
+- [ ] Finish evaluating and summarizing the lag-1 baseline
+- [ ] Establish the benchmark that subsequent forecasting approaches should beat
+- [ ] Determine the next forecasting approach based on what the baseline analysis reveals
+
+### Next Session
+- Continue evaluating the lag-1 forecasting baseline.
+- Determine whether any additional baseline diagnostics are necessary.
+- Summarize what the baseline analysis has taught us about the demand series and baseline behavior.
+- Establish the benchmark that subsequent forecasting approaches should beat.
+- Determine the next forecasting approach based on what the baseline analysis reveals.
