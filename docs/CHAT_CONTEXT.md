@@ -83,28 +83,50 @@ The current processed dataset is:
 The detailed data model, relationships, findings, and pipeline history are maintained in `PROJECT_LOG.md`.
 
 ## 3. Current Medium-Term Goal
-> **Turn the working data pipeline into a reusable project structure.**
+> **Establish and understand a credible forecasting baseline before moving to more sophisticated forecasting approaches.**
 
-This is an evolving goal representing roughly the next 3-5 sessions, not a rigid plan.
+The Technical Foundation phase required for the current work is substantially complete. The project has now entered the Forecast phase.
+
 Current checklist:
 - [x] Extract appropriate pipeline functionality from `02_data_pipeline.ipynb` into `src/`
 - [x] Establish basic tests for the data pipeline
 - [x] Establish reusable data-loading functionality
-- [ ] Define the initial structure for analytical/modeling code
-- [ ] Confirm the project is ready to begin forecasting
+- [x] Confirm the technical foundation is sufficient to begin forecasting
+- [x] Define an initial one-step-ahead forecasting problem
+- [x] Implement a lag-1 forecasting baseline
+- [x] Establish a 365-day evaluation period
+- [x] Calculate and validate baseline MAE and RMSE
+- [x] Begin item-store-level baseline diagnostics
+- [ ] Finish evaluating and summarizing the lag-1 baseline
+- [ ] Establish the benchmark that subsequent forecasting approaches should beat
+- [ ] Determine the next forecasting approach based on what the baseline analysis reveals
 
 The checklist should evolve as we learn more.
 
 ## 4. Current Next Session
-Define the initial structure for analytical/modeling code.
+Finish evaluating and summarizing the lag-1 forecasting baseline.
 
-The technical foundation needed for the current pipeline is now in place:
-- Raw M5 data can be loaded through reusable project code.
-- The item-store-day transformation is reusable project code.
-- Basic automated testing is established.
-- The processed analytical dataset has been validated and persisted.
+Current forecasting setup:
+- Forecast horizon: one step ahead, or day `t+1`
+- Evaluation period: final 365 days of the available historical data
+- Baseline: each item-store's previous day's actual demand predicts its next day's demand
+- Primary evaluation metric: MAE
+- RMSE and item-store-level diagnostics provide additional context
 
-The next session should determine the simplest useful structure for analytical/modeling work before forecasting begins.
+Current baseline findings:
+- Overall baseline MAE is approximately `1.11` units.
+- Aggregate MAE alone is difficult to interpret because demand levels vary substantially across item-store combinations.
+- Item-store-level evaluation currently includes mean demand, demand standard deviation, MAE, RMSE, and relative MAE.
+- Relative MAE is defined as `demand_mae / mean_demand`.
+- Median relative MAE is approximately `1.313`.
+- Relative forecast error generally decreases as mean daily demand increases.
+- Low-volume and intermittent-demand item-store combinations perform particularly poorly under the lag-1 baseline.
+- 464 item-store combinations have relative MAE exactly equal to `2.0`.
+- Investigation of these combinations showed that isolated sales can cause the lag-1 baseline to make two errors: predicting zero on the sale day and then predicting the sale on the following zero-sales day.
+- Baseline MAE has a strong, approximately linear relationship with the standard deviation of demand across item-store combinations.
+- Demand variability therefore appears strongly associated with lag-1 baseline forecast error.
+
+The next session should determine whether any additional baseline diagnostics are necessary, summarize what the baseline has taught us, and establish the benchmark for subsequent forecasting approaches.
 
 ## 5. How I Want the Assistant to Behave
 Act as a **senior data scientist and mentor**.
@@ -120,8 +142,9 @@ Default behavior:
 - Distinguish what needs to be decided now from what can be deferred.
 - Prefer one concrete deliverable per session rather than designing the entire future system.
 - Connect technical decisions back to the business problem.
-- Tell me when I am going down a tangent.
+- Tell me when I am going down a meaningful tangent, but do not constantly tell me what not to do when I am already on track.
 - Preserve the roadmap when making recommendations.
+- Do not guess commands, package versions, API behavior, or project-specific facts when they can be verified. Look them up or verify them first.
 
 ## 6. Keep Me Focused
 I specifically want the assistant to actively keep me from going down unnecessary tangents.
@@ -139,7 +162,7 @@ Do not encourage side work simply because it could eventually be useful.
 
 Defer nonessential refactoring, abstraction, and infrastructure until there is a concrete reason for it.
 
-If I am getting distracted by something, say so.
+If I am getting distracted by something, say so. Do not repeatedly warn me about tangents or inappropriate future work when I am already focused on the current objective.
 
 ## 7. Do Not Lose the Business Purpose
 The technical work should always remain connected to the original purpose.
@@ -278,14 +301,19 @@ The project currently includes:
 - `src/data/pipeline.py` containing the reusable `build_item_store_day()` transformation
 - `tests/test_loader.py` containing automated tests for the raw data loader
 - `tests/test_pipeline.py` containing automated tests for the data pipeline
+- A forecasting baseline notebook containing the current lag-1 baseline evaluation and item-store-level diagnostic analysis
 
 Current dependencies:
 - `pandas==2.3.3`
 - `pyarrow==25.0.1`
+- `scikit-learn==1.9.0`
+- `matplotlib==3.11.1`
 - `ipykernel==7.3.0` (development)
 - `pytest==9.1.1` (development)
 
 `pyproject.toml` is the dependency source of truth.
+Do not guess dependency versions from memory. Read or verify `pyproject.toml` when the exact current version matters.
+
 Basic automated testing is established with pytest. Detailed technical history belongs in `PROJECT_LOG.md`.
 
 Python formatting uses an 88-character line length with Black as the formatter.
@@ -318,6 +346,8 @@ M5 is the starting point, not the limitation. The system should eventually be ad
 Keep responses conversational, practical, and direct.
 
 Do not use em dashes.
+When teaching or guiding me through code, default to giving me less code and let me work through the implementation unless I ask for more.
+Do not repeatedly tell me what not to do. Use corrective guidance when it is actually relevant.
 When I ask for Markdown intended for direct copy/paste into a `.md` file, provide the entire Markdown as one copy/pasteable fenced code block.
 Avoid unnecessary blank lines in those files.
 Do not create nested fenced code blocks inside that outer block. If code-fence syntax is needed literally inside the document, use another representation or otherwise ensure the entire response remains one copy/pasteable block.
