@@ -83,9 +83,9 @@ The current processed dataset is:
 The detailed data model, relationships, findings, and pipeline history are maintained in `PROJECT_LOG.md`.
 
 ## 3. Current Medium-Term Goal
-> **Establish and understand a credible forecasting baseline before moving to more sophisticated forecasting approaches.**
+> **Determine which forecasting approaches are appropriate for different demand patterns before moving to more sophisticated forecasting methods.**
 
-The Technical Foundation phase required for the current work is substantially complete. The project has now entered the Forecast phase.
+The Technical Foundation phase required for the current work is substantially complete. The project is now in the Forecast phase.
 
 Current checklist:
 - [x] Extract appropriate pipeline functionality from `02_data_pipeline.ipynb` into `src/`
@@ -96,35 +96,48 @@ Current checklist:
 - [x] Implement a lag-1 forecasting baseline
 - [x] Establish a 365-day evaluation period
 - [x] Calculate and validate baseline MAE and RMSE
-- [x] Begin item-store-level baseline diagnostics
 - [x] Finish evaluating and summarizing the lag-1 baseline
-- [ ] Establish the benchmark that subsequent forecasting approaches should beat
-- [ ] Determine the next forecasting approach based on what the baseline analysis reveals
+- [x] Establish MAE as the primary benchmark for subsequent forecasting approaches
+- [x] Select and implement a 7-day seasonal naïve forecast
+- [x] Compare lag-1 and lag-7 performance overall and by item-store combination
+- [x] Interpret the comparison and identify the next forecasting investigation
+- [ ] Investigate whether relative lag-1 and lag-7 performance differs systematically across product categories or store locations
 
 The checklist should evolve as we learn more.
 
 ## 4. Current Next Session
-Establish the lag-1 benchmark that subsequent forecasting approaches should beat and determine the next forecasting approach based on the baseline findings.
+Investigate whether the item-store combinations for which lag-7 outperforms lag-1 are randomly distributed or associated with product categories or store locations.
 
 Current forecasting setup:
 - Forecast horizon: one step ahead, or day `t+1`
 - Evaluation period: final 365 days of the available historical data
-- Baseline: each item-store's previous day's actual demand predicts its next day's demand
 - Primary evaluation metric: MAE
-- RMSE and item-store-level diagnostics provide additional context
+- Baseline: lag-1 naïve forecast, where each item-store's previous day's actual demand predicts its next day's demand
+- First alternative: 7-day seasonal naïve forecast, where demand at `t-7` predicts demand at `t`
+- Item-store-level comparison uses the same 365-day evaluation period for both approaches
 
-Current baseline findings:
-- Overall baseline MAE is approximately `1.11` units.
+Current forecasting findings:
+- Overall lag-1 MAE is approximately `1.111` units.
+- Overall lag-7 MAE is approximately `1.153` units.
+- Lag-7 is approximately 3.8% worse than lag-1 on overall MAE.
+- Across 30,490 item-store combinations:
+  - Lag-1 outperforms lag-7 for 16,846 combinations, or 55.3%.
+  - Lag-7 outperforms lag-1 for 12,512 combinations, or 41.0%.
+  - The approaches tie for 1,132 combinations, or 3.7%.
+- Lag-1 therefore remains the stronger general-purpose baseline.
+- Lag-7 nevertheless wins for a meaningful minority of item-store combinations.
+- This suggests that different forecasting approaches may be appropriate for different item-store demand patterns.
+- The next investigation is whether lag-7 improvements are randomly distributed or associated with product categories or store locations.
+
+Important baseline findings that remain relevant:
 - Aggregate MAE alone is difficult to interpret because demand levels vary substantially across item-store combinations.
-- Item-store-level evaluation currently includes mean demand, demand standard deviation, MAE, RMSE, relative MAE, zero-demand rate, and demand-state switch rate.
 - Relative MAE is defined as `demand_mae / mean_demand`.
-- Median relative MAE is approximately `1.313`.
+- Median lag-1 relative MAE is approximately `1.313`.
 - Relative forecast error generally decreases as mean daily demand increases.
 - Low-volume and intermittent-demand item-store combinations perform particularly poorly under the lag-1 baseline.
 - 464 item-store combinations have relative MAE exactly equal to `2.0`.
 - Investigation of these combinations showed that isolated sales can cause the lag-1 baseline to make two errors: predicting zero on the sale day and then predicting the sale on the following zero-sales day.
-- Baseline MAE has a strong, approximately linear relationship with the standard deviation of demand across item-store combinations.
-- Demand variability therefore appears strongly associated with lag-1 baseline forecast error.
+- Lag-1 baseline MAE has a strong, approximately linear relationship with the standard deviation of demand across item-store combinations.
 - Demand is highly sparse across item-store combinations.
 - Mean zero-demand rate across item-store combinations is approximately `59.7%`.
 - Median zero-demand rate is approximately `64.1%`.
@@ -133,10 +146,6 @@ Current baseline findings:
 - Demand-state switch rate alone does not clearly distinguish good and poor lag-1 performance.
 - The lag-1 baseline performs well for relatively continuous demand where the previous day's sales provide useful information about next-day demand.
 - The lag-1 baseline performs poorly for highly intermittent demand with long periods of zero sales and occasional demand events.
-- Examining individual demand series confirmed that intermittent demand exposes a structural weakness of lag-1 forecasting: it tends to miss an isolated demand event and then predict that demand one day too late.
-- The baseline diagnostics are now sufficient to inform selection of the next forecasting approach.
-
-The next session should establish the benchmark that subsequent forecasting approaches should beat, determine the next forecasting approach based on what the baseline analysis revealed, and begin implementing and evaluating that approach.
 
 ## 5. How I Want the Assistant to Behave
 Act as a **senior data scientist and mentor**.
@@ -149,12 +158,17 @@ Default behavior:
 - Treat this like a real software project.
 - Help me develop intuition before implementation.
 - Keep me focused on the current session objective.
+- Be strict and quick to push back when I start moving away from the current objective.
+- Once something is good enough for the current purpose, redirect me forward rather than encouraging unnecessary refinement.
 - Distinguish what needs to be decided now from what can be deferred.
 - Prefer one concrete deliverable per session rather than designing the entire future system.
 - Connect technical decisions back to the business problem.
 - Tell me when I am going down a meaningful tangent, but do not constantly tell me what not to do when I am already on track.
 - Preserve the roadmap when making recommendations.
 - Do not guess commands, package versions, API behavior, or project-specific facts when they can be verified. Look them up or verify them first.
+- Use the current GitHub Issue checklist to help orient the session.
+- When our work changes the state of the current Issue checklist, show me only the newly checked line rather than repeatedly showing the entire checklist.
+- Do not show checklist updates when the checklist state has not changed.
 
 ## 6. Keep Me Focused
 I specifically want the assistant to actively keep me from going down unnecessary tangents.
@@ -166,13 +180,15 @@ If I start:
 - refactoring code that does not need refactoring
 - building infrastructure for hypothetical future requirements
 - solving a problem that is not relevant to the current session
+- polishing something beyond what the current Issue requires
 
-redirect me toward the current objective.
+redirect me toward the current objective quickly.
 Do not encourage side work simply because it could eventually be useful.
 
-Defer nonessential refactoring, abstraction, and infrastructure until there is a concrete reason for it.
+Defer nonessential refactoring, abstraction, infrastructure, and additional analysis until there is a concrete reason for it.
 
-If I am getting distracted by something, say so. Do not repeatedly warn me about tangents or inappropriate future work when I am already focused on the current objective.
+If I am getting distracted by something, say so and redirect me. Be willing to push back rather than following me down the tangent.
+Do not repeatedly warn me about tangents or inappropriate future work when I am already focused on the current objective.
 
 ## 7. Do Not Lose the Business Purpose
 The technical work should always remain connected to the original purpose.
@@ -313,6 +329,7 @@ The project currently includes:
 - `tests/test_pipeline.py` containing automated tests for the data pipeline
 - `04_forecasting_baseline.ipynb` containing the initial lag-1 baseline evaluation and item-store-level diagnostic analysis
 - `05_baseline_analysis.ipynb` containing additional lag-1 baseline analysis focused on demand sparsity and intermittent-demand behavior
+- `06_next_forecasting_approach.ipynb` containing the lag-1 versus 7-day seasonal naïve forecast comparison
 
 Current dependencies:
 - `pandas==2.3.3`

@@ -256,3 +256,31 @@ Checklist:
 - Establish the lag-1 benchmark that subsequent forecasting approaches should beat.
 - Determine the next forecasting approach based on the baseline findings.
 - Begin implementing and evaluating the next forecasting approach.
+
+## 2026-08-18
+
+### Completed
+- Worked under Issue #17.
+- Created `06_next_forecasting_approach.ipynb`.
+- Established MAE as the primary metric for comparing subsequent forecasting approaches against the lag-1 baseline.
+- Selected a 7-day seasonal naïve forecast as the next forecasting approach to test.
+- Implemented the 7-day seasonal naïve forecast using demand from the same item-store combination seven days earlier (`t-7`) to predict demand at day `t`.
+- Evaluated both lag-1 and lag-7 forecasts over the same final 365-day evaluation period.
+- Built an item-store-level summary containing MAE for both forecasting approaches.
+- Found an overall lag-1 MAE of approximately `1.111`.
+- Found an overall lag-7 MAE of approximately `1.153`, making lag-7 approximately 3.8% worse overall.
+- Compared forecast performance across all 30,490 item-store combinations:
+  - Lag-1 outperformed lag-7 for 16,846 combinations (55.3%).
+  - Lag-7 outperformed lag-1 for 12,512 combinations (41.0%).
+  - The approaches tied for 1,132 combinations (3.7%).
+
+### Key Takeaways
+- The lag-1 forecast remains the stronger general-purpose baseline based on overall MAE.
+- The 7-day seasonal naïve forecast does not improve aggregate forecast performance over lag-1.
+- Despite performing worse overall, lag-7 outperforms lag-1 for a meaningful minority of item-store combinations.
+- Forecast performance is heterogeneous across item-store combinations, suggesting that different forecasting approaches may be appropriate for different demand series.
+- The next investigation should determine whether lag-7 improvements are randomly distributed or associated with product categories or store locations.
+
+### Next Session
+- Investigate whether relative lag-1 and lag-7 performance differs systematically across product categories or store locations.
+- Use those findings to determine the next forecasting approach to investigate.
