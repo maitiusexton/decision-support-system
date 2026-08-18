@@ -97,14 +97,14 @@ Current checklist:
 - [x] Establish a 365-day evaluation period
 - [x] Calculate and validate baseline MAE and RMSE
 - [x] Begin item-store-level baseline diagnostics
-- [ ] Finish evaluating and summarizing the lag-1 baseline
+- [x] Finish evaluating and summarizing the lag-1 baseline
 - [ ] Establish the benchmark that subsequent forecasting approaches should beat
 - [ ] Determine the next forecasting approach based on what the baseline analysis reveals
 
 The checklist should evolve as we learn more.
 
 ## 4. Current Next Session
-Finish evaluating and summarizing the lag-1 forecasting baseline.
+Establish the lag-1 benchmark that subsequent forecasting approaches should beat and determine the next forecasting approach based on the baseline findings.
 
 Current forecasting setup:
 - Forecast horizon: one step ahead, or day `t+1`
@@ -116,7 +116,7 @@ Current forecasting setup:
 Current baseline findings:
 - Overall baseline MAE is approximately `1.11` units.
 - Aggregate MAE alone is difficult to interpret because demand levels vary substantially across item-store combinations.
-- Item-store-level evaluation currently includes mean demand, demand standard deviation, MAE, RMSE, and relative MAE.
+- Item-store-level evaluation currently includes mean demand, demand standard deviation, MAE, RMSE, relative MAE, zero-demand rate, and demand-state switch rate.
 - Relative MAE is defined as `demand_mae / mean_demand`.
 - Median relative MAE is approximately `1.313`.
 - Relative forecast error generally decreases as mean daily demand increases.
@@ -125,8 +125,18 @@ Current baseline findings:
 - Investigation of these combinations showed that isolated sales can cause the lag-1 baseline to make two errors: predicting zero on the sale day and then predicting the sale on the following zero-sales day.
 - Baseline MAE has a strong, approximately linear relationship with the standard deviation of demand across item-store combinations.
 - Demand variability therefore appears strongly associated with lag-1 baseline forecast error.
+- Demand is highly sparse across item-store combinations.
+- Mean zero-demand rate across item-store combinations is approximately `59.7%`.
+- Median zero-demand rate is approximately `64.1%`.
+- `66.6%` of item-store combinations have zero demand on at least half of the evaluation days.
+- Relative forecast error generally increases as demand becomes more sparse, although zero-demand rate alone does not explain performance.
+- Demand-state switch rate alone does not clearly distinguish good and poor lag-1 performance.
+- The lag-1 baseline performs well for relatively continuous demand where the previous day's sales provide useful information about next-day demand.
+- The lag-1 baseline performs poorly for highly intermittent demand with long periods of zero sales and occasional demand events.
+- Examining individual demand series confirmed that intermittent demand exposes a structural weakness of lag-1 forecasting: it tends to miss an isolated demand event and then predict that demand one day too late.
+- The baseline diagnostics are now sufficient to inform selection of the next forecasting approach.
 
-The next session should determine whether any additional baseline diagnostics are necessary, summarize what the baseline has taught us, and establish the benchmark for subsequent forecasting approaches.
+The next session should establish the benchmark that subsequent forecasting approaches should beat, determine the next forecasting approach based on what the baseline analysis revealed, and begin implementing and evaluating that approach.
 
 ## 5. How I Want the Assistant to Behave
 Act as a **senior data scientist and mentor**.
@@ -301,7 +311,8 @@ The project currently includes:
 - `src/data/pipeline.py` containing the reusable `build_item_store_day()` transformation
 - `tests/test_loader.py` containing automated tests for the raw data loader
 - `tests/test_pipeline.py` containing automated tests for the data pipeline
-- A forecasting baseline notebook containing the current lag-1 baseline evaluation and item-store-level diagnostic analysis
+- `04_forecasting_baseline.ipynb` containing the initial lag-1 baseline evaluation and item-store-level diagnostic analysis
+- `05_baseline_analysis.ipynb` containing additional lag-1 baseline analysis focused on demand sparsity and intermittent-demand behavior
 
 Current dependencies:
 - `pandas==2.3.3`
